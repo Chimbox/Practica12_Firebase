@@ -2,14 +2,21 @@ package com.example.digimind
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
 
 class RegistroActivity : AppCompatActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro)
+
+        auth = FirebaseAuth.getInstance()
 
         val btn_registrar: Button = findViewById(R.id.btn_registrar)
 
@@ -32,7 +39,7 @@ class RegistroActivity : AppCompatActivity() {
 
             if(contra1 == contra2){
 
-                //registrarFirebase()
+                registrarFirebase(correo,contra1)
 
             }else{
                 Toast.makeText(this, "Las contraseña no coinciden",
@@ -43,5 +50,25 @@ class RegistroActivity : AppCompatActivity() {
             Toast.makeText(this, "Ingresar datos",
                 Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun registrarFirebase(correo:String, contra: String) {
+        auth.createUserWithEmailAndPassword(correo, contra)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    //Log.d(TAG, "createUserWithEmail:success")
+                    val user = auth.currentUser
+                    Toast.makeText(baseContext, "${user.email} Se registró correctamente.",
+                        Toast.LENGTH_SHORT).show()
+                    //updateUI(user)
+                } else {
+                    // If sign in fails, display a message to the user.
+                    //Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(baseContext, "No se ha registrado.",
+                        Toast.LENGTH_SHORT).show()
+                    //updateUI(null)
+                }
+            }
     }
 }
